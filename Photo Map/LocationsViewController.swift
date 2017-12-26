@@ -8,6 +8,10 @@
 
 import UIKit
 
+protocol LocationsViewControllerDelegate : class {
+    func locationsPickedLocation(controller: LocationsViewController, latitude: NSNumber, longitude: NSNumber)
+}
+
 class LocationsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
 
     // TODO: Fill in actual CLIENT_ID and CLIENT_SECRET
@@ -18,6 +22,8 @@ class LocationsViewController: UIViewController, UITableViewDelegate, UITableVie
     @IBOutlet weak var searchBar: UISearchBar!
 
     var results: NSArray = []
+    
+    weak var delegate : LocationsViewControllerDelegate!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,14 +53,14 @@ class LocationsViewController: UIViewController, UITableViewDelegate, UITableVie
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // This is the selected venue
         let venue = results[(indexPath as NSIndexPath).row] as! NSDictionary
-
+        
         let lat = venue.value(forKeyPath: "location.lat") as! NSNumber
         let lng = venue.value(forKeyPath: "location.lng") as! NSNumber
-
-        let latString = "\(lat)"
-        let lngString = "\(lng)"
-
-        print(latString + " " + lngString)
+        
+        delegate.locationsPickedLocation(controller: self, latitude: lat, longitude: lng)
+        
+        // Return to the PhotoMapViewController
+        navigationController?.popViewController(animated: true)
     }
     
     func searchBar(_ searchBar: UISearchBar, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
